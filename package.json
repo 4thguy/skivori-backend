@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/4thguy/skivori-backend/issues"
   },
-  "homepage": "https://github.com/4thguy/skivori-backend#readme"
+  "homepage": "https://github.com/4thguy/skivori-backend#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
 }
