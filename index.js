@@ -9,6 +9,7 @@ const games = require('./games');
 const slots = require('./slots');
 
 const initHelmet = require('./src/init/helmet');
+const initRateLimit = require('./src/init/express-rate-limit');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -42,6 +43,7 @@ app.use(session({
 app.use(express.json());
 
 initHelmet(app);
+app.use(initRateLimit())
 
 app.get('/data/games', function (req, res) {
     return games.getGamesData(res)
