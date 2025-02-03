@@ -42,8 +42,8 @@ app.use(session({
 
 app.use(express.json());
 
-initHelmet(app);
-app.use(initRateLimit())
+app.use(initHelmet());
+app.use(initRateLimit());
 
 app.get('/data/games', function (req, res) {
     return games.getGamesData(res)

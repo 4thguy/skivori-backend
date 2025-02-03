@@ -5,8 +5,8 @@ const BACKEND_URL = process.env.BACKEND_URL;
 
 const helmet = require('helmet');
 
-function initHelmet(app) {
-    app.use(helmet({
+function initHelmet() {
+    return helmet({
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],  // ✅ Only allow requests from the same origin
@@ -25,7 +25,7 @@ function initHelmet(app) {
         hidePoweredBy: true,  // ✅ Hides Express from attackers
         xssFilter: true,  // ✅ Protects against XSS attacks
         noSniff: true,  // ✅ Prevents MIME-type sniffing
-    }));
+    });
 }
 
 module.exports = initHelmet; 
