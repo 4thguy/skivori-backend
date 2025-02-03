@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
+const { body, validationResult } = require('express-validator');
 const cors = require('cors');
 
 const games = require('./games');
@@ -46,13 +47,16 @@ app.get('/data/games', function (req, res) {
     return games.getGamesData(res)
 });
 
-app.post('/data/games/find', function (req, res) {
-    query = req.body.query;
-    if (!query || query === '') {
-        res.status(400)
-        res.send('Query is required');
-        return;
+app.post('/data/games/find', [
+    body('query').isString().withMessage('Invalid query format'),
+    body('query').trim().isLength({ min: 3 }).withMessage('Query too short'),
+], function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() }); // ✅ Handles bad input
     }
+
+    query = req.body.query;
     query = query.toLowerCase();
 
     return games.findGamesData(res, query);

@@ -39,12 +39,7 @@ function findGamesData(res, query) {
         .then(games => {
             const toReturn = games
                 .filter(game => game.title.toLowerCase().includes(query));
-            if (toReturn.length === 0) {
-                res.status(404)
-                res.send('No games found');
-            } else {
-                res.json(toReturn);
-            }
+            res.json(toReturn);
         })
         .catch(err => {
             res
