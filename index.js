@@ -5,7 +5,7 @@ const session = require('express-session');
 const { body, validationResult } = require('express-validator');
 const cors = require('cors');
 
-const games = require('./games');
+const games = require('./src/games/data');
 const slots = require('./src/games/slots');
 
 const initHelmet = require('./src/init/helmet');
