@@ -7,6 +7,8 @@ const cors = require('cors');
 const games = require('./games');
 const slots = require('./slots');
 
+const initHelmet = require('./src/init/helmet');
+
 const app = express();
 app.set('trust proxy', 1);
 
@@ -37,6 +39,8 @@ app.use(session({
 
 
 app.use(express.json());
+
+initHelmet(app);
 
 app.get('/data/games', function (req, res) {
     return games.getGamesData(res)
