@@ -1,0 +1,37 @@
+[
+    {
+        "consecutive": 3,
+        "type": "cherry",
+        "payout": 50
+    },
+    {
+        "consecutive": 2,
+        "type": "cherry",
+        "payout": 40
+    },
+    {
+        "consecutive": 3,
+        "type": "apple",
+        "payout": 20
+    },
+    {
+        "consecutive": 2,
+        "type": "apple",
+        "payout": 10
+    },
+    {
+        "consecutive": 3,
+        "type": "banana",
+        "payout": 15
+    },
+    {
+        "consecutive": 2,
+        "type": "banana",
+        "payout": 5
+    },
+    {
+        "consecutive": 3,
+        "type": "lemon",
+        "payout": 3
+    }
+]
