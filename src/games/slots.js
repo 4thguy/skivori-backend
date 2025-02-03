@@ -6,8 +6,8 @@ let slotDataPromise;
 let slotPayoutDataPromise;
 
 module.exports = {
-    getStatus: getStatus,
-    spinSlots: spinSlots,
+    getStatus,
+    spinSlots,
 };
 
 _result = ['cherry', 'cherry', 'cherry']
