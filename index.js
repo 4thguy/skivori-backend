@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
+
+const games = require('./games');
 
 const app = express();
 app.use(express.json());
@@ -19,40 +20,12 @@ if (isDev) {
     console.log("🔒 CORS disabled in production");
 }
 
-let gameDataPromise;
-
-function readGameData() {
-    if (!gameDataPromise) {
-        gameDataPromise = new Promise((resolve, reject) => {
-            fs.readFile('./data/game-data.json', 'utf8', (err, data) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                try {
-                    resolve(JSON.parse(data));
-                } catch (parseError) {
-                    reject(parseError);
-                }
-            });
-        });
-    }
-    return gameDataPromise;
-}
 
 app.get('/data/games', function (req, res) {
-    readGameData()
-        .then(data => res.json(data))
-        .catch(err => {
-            res
-                .status(500)
-                .send(err);
-            console.log(err);
-        });
+    return games.getGamesData(res)
 });
 
 app.post('/data/games/find', function (req, res) {
-    console.log(req);
     query = req.body.query;
     if (!query || query === '') {
         res.status(400)
@@ -61,23 +34,7 @@ app.post('/data/games/find', function (req, res) {
     }
     query = query.toLowerCase();
 
-    readGameData()
-        .then(games => {
-            const toReturn = games
-                .filter(game => game.title.toLowerCase().includes(query));
-            if (toReturn.length === 0) {
-                res.status(404)
-                res.send('No games found');
-            } else {
-                res.json(toReturn);
-            }
-        })
-        .catch(err => {
-            res
-                .status(500)
-                .send(err);
-            console.log(err);
-        });
+    return games.findGamesData(res, query);
 });
 
 const port = process.env.PORT || 3000;
