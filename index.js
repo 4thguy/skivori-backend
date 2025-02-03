@@ -10,6 +10,7 @@ const slots = require('./slots');
 
 const initHelmet = require('./src/init/helmet');
 const initRateLimit = require('./src/init/express-rate-limit');
+const initMorgan = require('./src/init/morgan');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -44,6 +45,7 @@ app.use(express.json());
 
 app.use(initHelmet());
 app.use(initRateLimit());
+app.use(initMorgan());
 
 app.get('/data/games', function (req, res) {
     return games.getGamesData(res)
