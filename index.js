@@ -15,6 +15,12 @@ const initMorgan = require('./src/init/morgan');
 const app = express();
 app.set('trust proxy', 1);
 
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
+
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 if (isDev) {
