@@ -4,16 +4,14 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const cors = require('cors');
 const compression = require('compression');
+const workerpool = require('workerpool');
 
-const games = require('./src/games/data');
 const slots = require('./src/games/slots');
 
 const initHelmet = require('./src/init/helmet');
 const initRateLimit = require('./src/init/express-rate-limit');
 const initSession = require('./src/init/express-session');
 const initMorgan = require('./src/init/morgan');
-
-const initWarmup = require('./src/init/warmup');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -47,27 +45,58 @@ app.use(initHelmet());
 app.use(initRateLimit());
 app.use(initMorgan());
 
-initWarmup();
+const gameDataPool = workerpool.pool('./src/games/data');
+async function warmUpGamesDatCache() {
+    console.log("🔄 Warming up game data cache...");
 
-app.get('/data/games', function (req, res) {
+    const pagesToPreload = [1, 2];
+    for (const page of pagesToPreload) {
+        try {
+            await gameDataPool.exec('getGamesData', [page]);
+            console.log(`✅ Cached page ${page}`);
+        } catch (err) {
+            console.error(`❌ Failed to cache page ${page}:`, err);
+        }
+    }
+
+    console.log("🔥 Cache warm-up completed.");
+}
+app.get('/data/games', async (req, res) => {
     page = req.query.page || 1;
-    return games.getGamesData(res, page)
-});
 
+    try {
+        const result = await gameDataPool.exec('getGamesData', [page]);
+        res.json(result);
+    } catch (err) {
+        res
+            .status(500)
+            .send(err);
+        console.error(err);
+    }
+});
 app.post('/data/games/find', [
     body('query').isString().withMessage('Invalid query format'),
     body('query').trim().isLength({ min: 3 }).withMessage('Query too short'),
-], function (req, res) {
+], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() }); // ✅ Handles bad input
+        return res.status(400).json({ errors: errors.array() });
     }
 
     query = req.body.query.toLowerCase().trim();
     page = req.body.page || 1;
 
-    return games.findGamesData(res, query, page);
+    try {
+        const result = await gameDataPool.exec('findGamesData', [query, page]);
+        res.json(result);
+    } catch (err) {
+        res
+            .status(500)
+            .send(err);
+        console.log(err);
+    }
 });
+warmUpGamesDatCache();
 
 app.get('/game/slots/status', function (req, res) {
     return slots.getStatus(req, res);

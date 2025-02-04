@@ -1,4 +1,5 @@
 const fs = require('fs');
+const workerpool = require('workerpool');
 
 const pagination = require('../../src/helpers/pagination');
 const cache = require('../../src/helpers/cache');
@@ -24,51 +25,49 @@ function _readGameData() {
     return gameDataPromise;
 }
 
-function getGamesData(res, page = 1) {
-    const key = `GamesData-${page}`
+async function getGamesData(page = 1) {
+    const key = `GamesData-${page}`;
     const cachedData = cache.get(key);
+
     if (cachedData) {
-        res.json(pagedResult);
-        return;
+        return cachedData; // Return cached data if available
     }
 
-    _readGameData()
-        .then(queryResult => {
-            const pagedResult = pagination.pageResult(queryResult, page);
-            cache.set(key, pagedResult);
-            res.json(pagedResult);
-        })
-        .catch(err => {
-            res
-                .status(500)
-                .send(err);
-            console.log(err);
-        });
+    try {
+        const queryResult = await _readGameData();
+        const pagedResult = pagination.pageResult(queryResult, page);
+        cache.set(key, pagedResult);
+        return pagedResult;
+    } catch (err) {
+        throw new Error("Failed to retrieve game data: " + err.message);
+    }
 }
 
-function findGamesData(res, query, page = 1) {
+async function findGamesData(query, page = 1) {
     query = query.toLowerCase().trim();
-    const key = `FindGamesData${query}-${page}}`;
+    const key = `FindGamesData-${query}-${page}`;
+
     const cachedData = cache.get(key);
     if (cachedData) {
-        res.json(pagedResult);
-        return;
+        return cachedData;
     }
 
-    _readGameData()
-        .then(queryResult => {
-            const filteredResult = queryResult
-                .filter(game => game.title.toLowerCase().includes(query));
-            const pagedResult = pagination.pageResult(filteredResult, page);
-            cache.set(key, pagedResult);
-            res.json(pagedResult);
-        })
-        .catch(err => {
-            res
-                .status(500)
-                .send(err);
-            console.log(err);
-        });
+    try {
+        const queryResult = await _readGameData();
+        const filteredResult = queryResult.filter(game =>
+            game.title.toLowerCase().includes(query)
+        );
+
+        const pagedResult = pagination.pageResult(filteredResult, page);
+        cache.set(key, pagedResult);
+        return pagedResult;
+    } catch (err) {
+        throw new Error("Failed to search games: " + err.message);
+    }
 }
 
-module.exports = { findGamesData, getGamesData };
+// Register functions for worker pool
+workerpool.worker({
+    getGamesData,
+    findGamesData
+});
