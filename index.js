@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const cors = require('cors');
+const compression = require('compression');
 
 const games = require('./src/games/data');
 const slots = require('./src/games/slots');
@@ -39,6 +40,7 @@ if (isDev) {
 
 
 app.use(express.json());
+app.use(compression());
 
 app.use(initSession());
 app.use(initHelmet());

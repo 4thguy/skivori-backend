@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/4thguy/skivori-backend#readme",
   "dependencies": {
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
