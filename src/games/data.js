@@ -1,8 +1,9 @@
 const fs = require('fs');
 
-let gameDataPromise;
+const pagination = require('../../src/helpers/pagination');
+const cache = require('../../src/helpers/cache');
 
-module.exports = { findGamesData, getGamesData };
+let gameDataPromise;
 
 function _readGameData() {
     if (!gameDataPromise) {
@@ -23,23 +24,19 @@ function _readGameData() {
     return gameDataPromise;
 }
 
-function getGamesData(res) {
-    _readGameData()
-        .then(data => res.json(data))
-        .catch(err => {
-            res
-                .status(500)
-                .send(err);
-            console.log(err);
-        });
-}
+function getGamesData(res, page = 1) {
+    const key = `GamesData-${page}`
+    const cachedData = cache.get(key);
+    if (cachedData) {
+        res.json(pagedResult);
+        return;
+    }
 
-function findGamesData(res, query) {
     _readGameData()
-        .then(games => {
-            const toReturn = games
-                .filter(game => game.title.toLowerCase().includes(query));
-            res.json(toReturn);
+        .then(queryResult => {
+            const pagedResult = pagination.pageResult(queryResult, page);
+            cache.set(key, pagedResult);
+            res.json(pagedResult);
         })
         .catch(err => {
             res
@@ -48,3 +45,30 @@ function findGamesData(res, query) {
             console.log(err);
         });
 }
+
+function findGamesData(res, query, page = 1) {
+    query = query.toLowerCase().trim();
+    const key = `FindGamesData${query}-${page}}`;
+    const cachedData = cache.get(key);
+    if (cachedData) {
+        res.json(pagedResult);
+        return;
+    }
+
+    _readGameData()
+        .then(queryResult => {
+            const filteredResult = queryResult
+                .filter(game => game.title.toLowerCase().includes(query));
+            const pagedResult = pagination.pageResult(filteredResult, page);
+            cache.set(key, pagedResult);
+            res.json(pagedResult);
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send(err);
+            console.log(err);
+        });
+}
+
+module.exports = { findGamesData, getGamesData };

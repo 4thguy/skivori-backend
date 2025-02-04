@@ -44,7 +44,8 @@ app.use(initRateLimit());
 app.use(initMorgan());
 
 app.get('/data/games', function (req, res) {
-    return games.getGamesData(res)
+    page = req.query.page || 1;
+    return games.getGamesData(res, page)
 });
 
 app.post('/data/games/find', [
@@ -56,10 +57,10 @@ app.post('/data/games/find', [
         return res.status(400).json({ errors: errors.array() }); // ✅ Handles bad input
     }
 
-    query = req.body.query;
-    query = query.toLowerCase();
+    query = req.body.query.toLowerCase().trim();
+    page = req.body.page || 1;
 
-    return games.findGamesData(res, query);
+    return games.findGamesData(res, query, page);
 });
 
 app.get('/game/slots/status', function (req, res) {
