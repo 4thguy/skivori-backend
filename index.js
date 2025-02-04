@@ -12,6 +12,8 @@ const initRateLimit = require('./src/init/express-rate-limit');
 const initSession = require('./src/init/express-session');
 const initMorgan = require('./src/init/morgan');
 
+const initWarmup = require('./src/init/warmup');
+
 const app = express();
 app.set('trust proxy', 1);
 
@@ -42,6 +44,8 @@ app.use(initSession());
 app.use(initHelmet());
 app.use(initRateLimit());
 app.use(initMorgan());
+
+initWarmup();
 
 app.get('/data/games', function (req, res) {
     page = req.query.page || 1;
