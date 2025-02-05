@@ -1,11 +1,18 @@
 const fs = require('fs');
 const workerpool = require('workerpool');
 
+// pagination to limit the number of games returned per page
 const pagination = require('../../src/helpers/pagination');
+// cache to store search results for faster retrieval
 const cache = require('../../src/helpers/cache');
 
+// global promise to cache the game data
 let gameDataPromise;
 
+/*
+ * Read the game data from a JSON file
+ * @returns {Promise<object>} - The game data
+ */
 function _readGameData() {
     if (!gameDataPromise) {
         gameDataPromise = new Promise((resolve, reject) => {
@@ -25,6 +32,11 @@ function _readGameData() {
     return gameDataPromise;
 }
 
+/*
+ * Get the games data with pagination
+ * @param {number} page - The page number for pagination
+ * @returns {Promise<object>} - The games data with pagination
+ */
 async function getGamesData(page = 1) {
     const key = `GamesData-${page}`;
     const cachedData = cache.get(key);
@@ -43,6 +55,12 @@ async function getGamesData(page = 1) {
     }
 }
 
+/*
+ * Find the games data based on query
+ * @param {string} query - The query string to search for
+ * @param {number} page - The page number for pagination
+ * @returns {Promise<object>} - The games data based on query with pagination
+ */
 async function findGamesData(query, page = 1) {
     query = query.toLowerCase().trim();
     const key = `FindGamesData-${query}-${page}`;
@@ -69,5 +87,5 @@ async function findGamesData(query, page = 1) {
 // Register functions for worker pool
 workerpool.worker({
     getGamesData,
-    findGamesData
+    findGamesData,
 });

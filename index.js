@@ -16,14 +16,15 @@ const initMorgan = require('./src/init/morgan');
 const app = express();
 app.set('trust proxy', 1);
 
+// Catch errors if they bubble up to the main process
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
 
+// Enable CORS for development only
 const isDev = process.env.NODE_ENV !== 'production';
-
 if (isDev) {
     console.log("🚀 Enabling CORS for development");
     app.use(cors({
@@ -37,15 +38,25 @@ if (isDev) {
 }
 
 
+// Middleware to parse JSON requests
 app.use(express.json());
+// Middleware to compress responses for better transmission
 app.use(compression());
 
+// Middleware to initialize session management
 app.use(initSession());
+// Middleware to initialize Helmet for security headers
 app.use(initHelmet());
+// Middleware to initialize rate limiting for API requests
 app.use(initRateLimit());
+// Middleware to initialize Morgan for logging HTTP requests
 app.use(initMorgan());
 
+// Middleware to initialize workerpool for multi-threaded tasks
 const gameDataPool = workerpool.pool('./src/games/data');
+/*
+ * Warm up the game data cache by preloading specific pages
+ */
 async function warmUpGamesDatCache() {
     console.log("🔄 Warming up game data cache...");
 

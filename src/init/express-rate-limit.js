@@ -1,5 +1,9 @@
 const expressRateLimit = require('express-rate-limit');
 
+/*
+ * Initializes the rate limit middleware object
+ * @returns {Function} - The rate limit middleware function
+ */
 function initRateLimit() {
     return expressRateLimit({
         windowMs: 15 * 60 * 1000, // ✅ 15 minutes

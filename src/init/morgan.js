@@ -6,6 +6,10 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, '../../logs/ac
 
 const isDev = process.env.NODE_ENV !== 'production';
 
+/*
+ * Initializes the Morgan middleware object
+ * @returns {Function} - The Morgan middleware function
+ */
 function initMorgan() {
     return isDev
         ? morgan('dev', {

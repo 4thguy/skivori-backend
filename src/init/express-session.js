@@ -2,6 +2,10 @@ require('dotenv').config();
 
 const expressSession = require('express-session');
 
+/*
+ * Initializes the express session middleware object
+ * @returns {Function} - The session middleware function
+ */
 function initSession() {
     return expressSession({
         secret: process.env.SECRET,

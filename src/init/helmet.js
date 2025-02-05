@@ -5,6 +5,10 @@ const BACKEND_URL = process.env.BACKEND_URL;
 
 const helmet = require('helmet');
 
+/*
+ * Initialize Helmet middleware object
+ * @returns {Object} - The Helmet middleware object
+ */
 function initHelmet() {
     return helmet({
         contentSecurityPolicy: {
