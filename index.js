@@ -22,21 +22,14 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-
-// Enable CORS for development only
-const isDev = process.env.NODE_ENV !== 'production';
-if (isDev) {
-    console.log("🚀 Enabling CORS for development");
-    app.use(cors({
-        origin: 'http://localhost:4200', // Allow Angular app during development
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true
-    }));
-} else {
-    console.log("🔒 CORS disabled in production");
-}
-
+// Enable CORS for frontend only
+console.log("🚀 Enabling CORS for frontend");
+app.use(cors({
+    origin: `${process.env.FRONTEND_URL}`,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}));
 
 // Middleware to parse JSON requests
 app.use(express.json());
@@ -115,6 +108,18 @@ app.get('/game/slots/status', function (req, res) {
 
 app.post('/game/slots/spin', function (req, res) {
     return slots.spinSlots(req, res);
+});
+
+
+app.get('/', async (req, res) => {
+    try {
+        res.json({});
+    } catch (err) {
+        res
+            .status(500)
+            .send(err);
+        console.error(err);
+    }
 });
 
 const port = process.env.PORT || 3000;
